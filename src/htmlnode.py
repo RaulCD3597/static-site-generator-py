@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional
+from typing import Dict, List, Optional
 
 
 class HTMLNode:
@@ -6,7 +6,7 @@ class HTMLNode:
         self,
         tag: Optional[str] = None,
         value: Optional[str] = None,
-        children: Optional[List[Any]] = None,
+        children: Optional[List] = None,
         props: Optional[Dict[str, str]] = None,
     ) -> None:
         self.tag = tag
@@ -37,7 +37,25 @@ class LeafNode(HTMLNode):
 
     def to_html(self) -> str:
         if self.value is None:
-            raise ValueError("All leaf nodes must have a value")
+            raise ValueError("Invalid HTML: no value")
         if self.tag is None:
             return self.value
         return f"<{self.tag}{self.props_to_html()}>{self.value}</{self.tag}>"
+
+
+class ParentNode(HTMLNode):
+    def __init__(
+        self,
+        tag: str,
+        children: List[HTMLNode],
+        props: Optional[Dict[str, str]] = None,
+    ) -> None:
+        super().__init__(tag, None, children, props)
+
+    def to_html(self) -> str:
+        if self.tag is None:
+            raise ValueError("Invalid HTML: no tag")
+        if self.children is None:
+            raise ValueError("Invalid HTML: no children")
+        children_html = "".join(map(lambda x: x.to_html(), self.children))
+        return f"<{self.tag}{self.props_to_html()}>{children_html}</{self.tag}>"
