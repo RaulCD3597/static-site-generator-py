@@ -1,4 +1,5 @@
-from typing import List
+from re import findall
+from typing import List, Tuple
 
 from textnode import TextNode, TextType
 
@@ -19,3 +20,11 @@ def split_nodes_delimiter(
             else:
                 result.append(TextNode(chunk, text_type))
     return result
+
+
+def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
+    return findall(r"!\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
+
+
+def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
+    return findall(r"(?<!!)\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
