@@ -1,4 +1,4 @@
-from re import findall
+import re
 from typing import List, Tuple
 
 from textnode import TextNode, TextType
@@ -23,8 +23,46 @@ def split_nodes_delimiter(
 
 
 def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
-    return findall(r"!\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
+    return re.findall(r"!\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
 
 
 def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
-    return findall(r"(?<!!)\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
+    return re.findall(r"(?<!!)\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
+
+
+def split_nodes_image(old_nodes: List[TextNode]) -> List[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        matches = extract_markdown_images(node.text)
+        if len(matches) == 0:
+            new_nodes.append(node)
+            continue
+        text_to_split = node.text
+        for alt, url in matches:
+            splits = text_to_split.split(f"![{alt}]({url})", 1)
+            for split in filter(lambda x: x != "", splits[:-1]):
+                new_nodes.append(TextNode(split, node.text_type))
+            new_nodes.append(TextNode(alt, TextType.IMAGE, url))
+            text_to_split = splits[-1]
+        if text_to_split != "":
+            new_nodes.append(TextNode(text_to_split, node.text_type))
+    return new_nodes
+
+
+def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
+    new_nodes = []
+    for node in old_nodes:
+        matches = extract_markdown_links(node.text)
+        if len(matches) == 0:
+            new_nodes.append(node)
+            continue
+        text_to_split = node.text
+        for text, url in matches:
+            splits = text_to_split.split(f"[{text}]({url})", 1)
+            for split in filter(lambda x: x != "", splits[:-1]):
+                new_nodes.append(TextNode(split, node.text_type))
+            new_nodes.append(TextNode(text, TextType.LINK, url))
+            text_to_split = splits[-1]
+        if text_to_split != "":
+            new_nodes.append(TextNode(text_to_split, node.text_type))
+    return new_nodes
