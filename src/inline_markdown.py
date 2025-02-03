@@ -10,8 +10,6 @@ def split_nodes_delimiter(
     result = []
     for node in old_nodes:
         chunks = node.text.split(delimiter)
-        if len(chunks) % 2 == 0:
-            raise ValueError("Invalid markdown, formatted section not closed")
         for i, chunk in enumerate(chunks):
             if chunk == "":
                 continue
@@ -72,6 +70,7 @@ def text_to_textnodes(text: str) -> List[TextNode]:
     text_nodes = [TextNode(text, TextType.TEXT)]
     text_nodes = split_nodes_delimiter(text_nodes, "**", TextType.BOLD)
     text_nodes = split_nodes_delimiter(text_nodes, "*", TextType.ITALIC)
+    text_nodes = split_nodes_delimiter(text_nodes, "_", TextType.ITALIC)
     text_nodes = split_nodes_delimiter(text_nodes, "`", TextType.CODE)
     text_nodes = split_nodes_image(text_nodes)
     text_nodes = split_nodes_link(text_nodes)

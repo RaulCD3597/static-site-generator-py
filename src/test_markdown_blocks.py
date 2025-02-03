@@ -3,8 +3,8 @@ import unittest
 from markdown_blocks import (BLOCK_TYPE_CODE, BLOCK_TYPE_HEADING,
                              BLOCK_TYPE_OLIST, BLOCK_TYPE_PARAGRAPH,
                              BLOCK_TYPE_QUOTE, BLOCK_TYPE_ULIST,
-                             block_to_block_type, markdown_to_blocks,
-                             markdown_to_html_node)
+                             block_to_block_type, extract_title,
+                             markdown_to_blocks, markdown_to_html_node)
 
 
 class TestMarkdownToHTML(unittest.TestCase):
@@ -147,6 +147,10 @@ this is paragraph text
             html,
             "<div><blockquote>This is a blockquote block</blockquote><p>this is paragraph text</p></div>",
         )
+
+    def test_extract_title(self):
+        md = "# Hello"
+        self.assertEqual(extract_title(md), "Hello")
 
 
 if __name__ == "__main__":
