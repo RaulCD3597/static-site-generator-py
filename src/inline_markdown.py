@@ -4,6 +4,17 @@ from typing import List, Tuple
 from textnode import TextNode, TextType
 
 
+def text_to_textnodes(text: str) -> List[TextNode]:
+    text_nodes = [TextNode(text, TextType.TEXT)]
+    text_nodes = split_nodes_delimiter(text_nodes, "**", TextType.BOLD)
+    text_nodes = split_nodes_delimiter(text_nodes, "*", TextType.ITALIC)
+    text_nodes = split_nodes_delimiter(text_nodes, "_", TextType.ITALIC)
+    text_nodes = split_nodes_delimiter(text_nodes, "`", TextType.CODE)
+    text_nodes = split_nodes_image(text_nodes)
+    text_nodes = split_nodes_link(text_nodes)
+    return text_nodes
+
+
 def split_nodes_delimiter(
     old_nodes: List[TextNode], delimiter: str, text_type: TextType
 ) -> List[TextNode]:
@@ -18,14 +29,6 @@ def split_nodes_delimiter(
             else:
                 result.append(TextNode(chunk, text_type))
     return result
-
-
-def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
-    return re.findall(r"!\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
-
-
-def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
-    return re.findall(r"(?<!!)\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
 
 
 def split_nodes_image(old_nodes: List[TextNode]) -> List[TextNode]:
@@ -66,12 +69,9 @@ def split_nodes_link(old_nodes: List[TextNode]) -> List[TextNode]:
     return new_nodes
 
 
-def text_to_textnodes(text: str) -> List[TextNode]:
-    text_nodes = [TextNode(text, TextType.TEXT)]
-    text_nodes = split_nodes_delimiter(text_nodes, "**", TextType.BOLD)
-    text_nodes = split_nodes_delimiter(text_nodes, "*", TextType.ITALIC)
-    text_nodes = split_nodes_delimiter(text_nodes, "_", TextType.ITALIC)
-    text_nodes = split_nodes_delimiter(text_nodes, "`", TextType.CODE)
-    text_nodes = split_nodes_image(text_nodes)
-    text_nodes = split_nodes_link(text_nodes)
-    return text_nodes
+def extract_markdown_images(text: str) -> List[Tuple[str, str]]:
+    return re.findall(r"!\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
+
+
+def extract_markdown_links(text: str) -> List[Tuple[str, str]]:
+    return re.findall(r"(?<!!)\[([^\[\]]+)\]\(([^\(\)]+)\)", text)
